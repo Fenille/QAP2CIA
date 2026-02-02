@@ -525,7 +525,7 @@
 
             <!-- BOe (múltiplos) conforme modelo: (dia, NºBOPM, natureza) -->
             <div class="grupo-titulo">BOe (dia • Nº BOPM • natureza) — múltiplos</div>
-            <p class="muted" style="margin-top:-2px;">Use “Adicionar BOPM” para lançar mais de um BOe no mesmo lançamento.</p>
+            <p class="muted" style="margin-top:-2px;">Use “Adicionar BOPM” para lançar mais de um BOe no mesmo lançamento. (Agora é opcional)</p>
             <div id="bopmContainer"></div>
             <div class="form-actions" style="justify-content:flex-start;margin-top:6px;">
               <button type="button" class="btn" id="btnAddBOPM">+ Adicionar BOPM</button>
@@ -600,6 +600,10 @@
             <h3 style="font-size:0.9rem;margin-top:4px;">Resumo dos indicadores</h3>
             <div id="resumoCampos"></div>
 
+            <!-- ✅ NOVO: Resumo de BOe (BOPM/Natureza) logo abaixo -->
+            <div class="grupo-titulo">BOe (BOPM / Natureza) — Resumo do filtro</div>
+            <div id="resumoBOPM" class="muted">—</div>
+
             <h3 style="font-size:0.9rem;margin-top:12px;">Lançamentos detalhados (por viatura)</h3>
             <p class="muted">Clique em <strong>Editar</strong> para ajustar um lançamento.</p>
             <div style="overflow-x:auto;">
@@ -614,7 +618,6 @@
   <script>
     const DB_URL = "https://qap2cia-bd58b-default-rtdb.firebaseio.com";
 
-
     let editingKey = null;
     let editingLancamento = null;
 
@@ -624,6 +627,10 @@
     let ultimoCidadeResumo = null;
     let ultimoPeriodoInicio = null;
     let ultimoPeriodoFim = null;
+
+    // ✅ cache adicional para BOe no CSV
+    let ultimoBOPMResumo = [];
+    let ultimoBOPMResumoTexto = "";
 
     // ===== NOVOS CAMPOS conforme lista enviada =====
     const GRUPOS = [
@@ -799,7 +806,6 @@
       });
     }
 
-
     // ===== BOe (múltiplos BOPM) =====
     function addBOPMItem(nbopm="", natureza=""){
       const container = document.getElementById("bopmContainer");
@@ -863,6 +869,8 @@
       addBOPMItem();
     }
 
+    // ✅ Agora: aceita salvar mesmo se só um dos dois estiver preenchido
+    // - se nbopm OU natureza existir, salva o item (sem travar)
     function coletarBOPMs(){
       const container = document.getElementById("bopmContainer");
       const lista = [];
@@ -873,7 +881,8 @@
         if(inputs.length < 2) return;
         const nb = (inputs[0].value || "").trim();
         const nat = (inputs[1].value || "").trim();
-        if(nb && nat){
+
+        if(nb || nat){
           lista.push({ nbopm: nb, natureza: nat });
         }
       });
@@ -882,9 +891,52 @@
 
     function renderBOPMsParaTabela(boeArr){
       if(!Array.isArray(boeArr) || boeArr.length === 0) return "";
-      // compacta para caber: "123/2026 - Tráfico | 456/2026 - Captura"
-      return boeArr.map(x=>`${x.nbopm} - ${x.natureza}`).join(" | ");
+      return boeArr
+        .map(x=>{
+          const nb = (x.nbopm || "").trim();
+          const nat = (x.natureza || "").trim();
+          if(nb && nat) return `${nb} - ${nat}`;
+          if(nb && !nat) return `${nb} - (sem natureza)`;
+          if(!nb && nat) return `(sem BOPM) - ${nat}`;
+          return "";
+        })
+        .filter(Boolean)
+        .join(" | ");
     }
+
+    function coletarBOPMsResumo(lancamentos){
+      const vistos = new Set();
+      const lista = [];
+      lancamentos.forEach(l=>{
+        const arr = Array.isArray(l.boe) ? l.boe : [];
+        arr.forEach(x=>{
+          const nb = (x.nbopm || "").trim();
+          const nat = (x.natureza || "").trim();
+          if(!nb && !nat) return;
+          const key = `${nb}||${nat}`;
+          if(vistos.has(key)) return;
+          vistos.add(key);
+          lista.push({ nbopm: nb, natureza: nat });
+        });
+      });
+      return lista;
+    }
+
+    function renderResumoBOPM(lista){
+      if(!Array.isArray(lista) || lista.length === 0) return "—";
+      return lista
+        .map(x=>{
+          const nb = (x.nbopm || "").trim();
+          const nat = (x.natureza || "").trim();
+          if(nb && nat) return `${nb} - ${nat}`;
+          if(nb && !nat) return `${nb} - (sem natureza)`;
+          if(!nb && nat) return `(sem BOPM) - ${nat}`;
+          return "";
+        })
+        .filter(Boolean)
+        .join(" | ");
+    }
+
     async function firebaseSalvarLancamento(lancamento){
       const url = DB_URL + "/operacoes.json";
       const resp = await fetch(url, {
@@ -957,7 +1009,7 @@
         const inp = document.getElementById("campo_"+c.id);
         if(inp) inp.value = "";
       });
-            limparBOPMContainer();
+      limparBOPMContainer();
     }
 
     function preencherFormulario(l){
@@ -967,7 +1019,7 @@
       document.getElementById("re").value           = l.re || "";
       document.getElementById("turno").value        = l.turno || "";
 
-            // BOe (múltiplos)
+      // BOe (múltiplos)
       limparBOPMContainer();
       const boeArr = Array.isArray(l.boe) ? l.boe : (l.boe && Array.isArray(l.boe.bops) ? l.boe.bops : []);
       if(boeArr.length){
@@ -1017,16 +1069,15 @@
       const viatura      = document.getElementById("viatura").value.trim();
       const re           = document.getElementById("re").value.trim();
       const turno        = document.getElementById("turno").value;
-      const bops = coletarBOPMs();
+
+      const bops = coletarBOPMs(); // ✅ agora pode ser vazio
 
       if(!dataOperacao || !cidade || !viatura || !re || !turno){
         mostrarAlertaForm("Preencha data, cidade, viatura, RE e turno.", false);
         return;
       }
-            if(!bops || bops.length === 0){
-        mostrarAlertaForm("Informe pelo menos 1 BOPM e sua Natureza (BOe).", false);
-        return;
-      }
+      // ✅ REMOVIDO: regra que obrigava 1 BOe
+      // if(!bops || bops.length === 0){ ... }
 
       const campos = {};
       getTodosCampos().forEach(c=>{
@@ -1042,7 +1093,8 @@
         viatura,
         re,
         turno,
-        boe: bops.map(x=>({ dia: dataOperacao, nbopm: x.nbopm, natureza: x.natureza })),
+        // ✅ se não tiver nada preenchido, salva como array vazio (sem erro)
+        boe: (bops || []).map(x=>({ dia: dataOperacao, nbopm: x.nbopm, natureza: x.natureza })),
         campos,
         criadoEm: editingLancamento && editingLancamento.criadoEm
           ? editingLancamento.criadoEm
@@ -1084,6 +1136,9 @@
     const tabelasResumo        = document.getElementById("tabelasResumo");
     const resumoCampos         = document.getElementById("resumoCampos");
     const tabelaDetalhes       = document.getElementById("tabelaDetalhes");
+
+    // ✅ novo: resumo BOe
+    const resumoBOPMEl         = document.getElementById("resumoBOPM");
 
     function montarResumoIndicadores(mapa){
       resumoCampos.innerHTML = "";
@@ -1133,6 +1188,10 @@
       ultimoCidadeResumo = null;
       ultimoPeriodoInicio = null;
       ultimoPeriodoFim = null;
+
+      ultimoBOPMResumo = [];
+      ultimoBOPMResumoTexto = "";
+      if(resumoBOPMEl) resumoBOPMEl.textContent = "—";
     }
 
     function setRangeInfo(txt){
@@ -1156,6 +1215,7 @@
       const thead = document.createElement("thead");
       const trh   = document.createElement("tr");
 
+      // ✅ mantém BOe aparecendo (já existia), agora aceita vazio e mostra "(sem ...)"
       ["Editar","Data","Município","Viatura","RE","Turno","BOe (BOPM - Natureza)"].forEach(t=>{
         const th = document.createElement("th");
         th.textContent = t;
@@ -1182,9 +1242,9 @@
         tdEdit.appendChild(btnE);
         tr.appendChild(tdEdit);
 
-                const boeStr = renderBOPMsParaTabela(l.boe);
+        const boeStr = renderBOPMsParaTabela(l.boe);
 
-                const colsBase = [
+        const colsBase = [
           l.dataOperacao || "",
           l.cidade || "",
           l.viatura || "",
@@ -1268,6 +1328,11 @@
       const mapa = somarMapa(lancamentos);
       montarResumoIndicadores(mapa);
 
+      // ✅ resumo BOe no filtro
+      ultimoBOPMResumo = coletarBOPMsResumo(lancamentos);
+      ultimoBOPMResumoTexto = renderResumoBOPM(ultimoBOPMResumo);
+      if(resumoBOPMEl) resumoBOPMEl.textContent = ultimoBOPMResumoTexto;
+
       ultimoMapaResumo = mapa;
       ultimoDataResumo = data;
       ultimoCidadeResumo = cidadeFiltro;
@@ -1329,6 +1394,11 @@
       const mapa = somarMapa(lancamentos);
       montarResumoIndicadores(mapa);
 
+      // ✅ resumo BOe no filtro
+      ultimoBOPMResumo = coletarBOPMsResumo(lancamentos);
+      ultimoBOPMResumoTexto = renderResumoBOPM(ultimoBOPMResumo);
+      if(resumoBOPMEl) resumoBOPMEl.textContent = ultimoBOPMResumoTexto;
+
       ultimoMapaResumo = mapa;
       ultimoCidadeResumo = cidadeFiltro;
       ultimoPeriodoInicio = ini;
@@ -1372,6 +1442,25 @@
           contador++;
         });
       });
+
+      // ✅ NOVO: BOPM/Natureza abaixo dos demais campos
+      linhas.push("");
+      linhas.push("BOe (BOPM / Natureza);");
+      if(ultimoBOPMResumo && ultimoBOPMResumo.length){
+        // 1 por linha, para ficar limpo no Excel
+        ultimoBOPMResumo.forEach((x, idx)=>{
+          const nb = (x.nbopm || "").trim();
+          const nat = (x.natureza || "").trim();
+          const item =
+            (nb && nat) ? `${nb} - ${nat}` :
+            (nb && !nat) ? `${nb} - (sem natureza)` :
+            (!nb && nat) ? `(sem BOPM) - ${nat}` :
+            "";
+          if(item) linhas.push(`${idx+1};${item}`);
+        });
+      }else{
+        linhas.push(`1;—`);
+      }
 
       const csvContent = linhas.join("\r\n");
       const blob = new Blob([csvContent], {type:"text/csv;charset=utf-8;"});
