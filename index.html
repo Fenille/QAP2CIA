@@ -614,6 +614,24 @@
       </section>
     </div>
   </div>
+// =============================
+// AVISO DE NOVO SISTEMA DO QAP
+// =============================
+window.addEventListener("load", () => {
+  setTimeout(() => {
+    if (confirm(
+`ATENÇÃO!
+
+Existe uma nova versão do QAP do 18º BPM/I.
+
+Deseja acessar o novo sistema agora?
+
+Caso escolha "Cancelar", você permanecerá utilizando esta versão.`)) {
+
+      window.location.href = "https://fenille.github.io/qap18/";
+    }
+  }, 300);
+});
 
   <script>
     const DB_URL = "https://qap2cia-bd58b-default-rtdb.firebaseio.com";
