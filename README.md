@@ -1,44 +1,22 @@
-# QAP 2ª Cia com login por RE
+# QAP2CIA — versão corrigida para GitHub Pages
 
-Esta versão integra o sistema QAP2CIA com autenticação.
+Os arquivos públicos estão diretamente na raiz, como exigido pelo GitHub Pages:
 
-## Fluxos incluídos
+- `index.html`: tela de login;
+- `qap.html`: sistema protegido;
+- `app.js`, `styles.css` e `firebase-config.js`: arquivos do login.
 
-- Login pelo RE e senha.
-- Primeiro acesso com cadastro de RE, senha e e-mail de recuperação.
-- Redefinição de senha por link enviado ao e-mail cadastrado.
-- Bloqueio da página `qap.html` para usuários não autenticados ou inativos.
-- Botão Sair e identificação do RE conectado.
-- Leituras e gravações de `operacoes` autenticadas por token.
-- Registro de criação do lançamento em `criadoPorUid`.
+## Como publicar no GitHub
 
-## Configuração obrigatória antes do teste
+1. Exclua do repositório os arquivos da versão anterior, principalmente o antigo `index.html`.
+2. Extraia este ZIP.
+3. Envie **o conteúdo extraído**, e não a pasta nem o ZIP.
+4. Aguarde o GitHub Pages concluir a publicação.
 
-1. No Console Firebase do projeto `qap2cia-bd58b`, acesse **Configurações do projeto > Seus apps** e crie/abra um aplicativo Web.
-2. Copie `apiKey`, `messagingSenderId` e `appId` para `public/firebase-config.js`.
-3. Em **Authentication > Sign-in method**, habilite **E-mail/senha**.
-4. Dentro de `functions`, execute `npm install`.
-5. Configure os segredos do servidor de e-mail:
+## Configuração obrigatória
 
-   ```bash
-   firebase functions:secrets:set SMTP_HOST
-   firebase functions:secrets:set SMTP_PORT
-   firebase functions:secrets:set SMTP_USER
-   firebase functions:secrets:set SMTP_PASS
-   firebase functions:secrets:set SMTP_FROM
-   ```
+Antes de publicar, abra `firebase-config.js` e substitua `COLE_AQUI` pelos dados do aplicativo Web do projeto `qap2cia-bd58b`.
 
-6. Publique a integração:
+No Firebase, habilite **Authentication > E-mail/senha**. O primeiro acesso e a recuperação por e-mail também dependem da publicação das Functions incluídas na pasta `functions`.
 
-   ```bash
-   firebase deploy --only functions,database,hosting
-   ```
-
-7. Abra a URL exibida pelo Firebase Hosting e teste **Primeiro acesso**.
-
-## Observações
-
-- A autenticação real não funciona simplesmente abrindo o HTML por duplo clique; use Firebase Hosting ou um servidor local.
-- O e-mail técnico `reNUMERO@qap.local` é interno. O policial entra somente com RE e senha.
-- O e-mail verdadeiro fica no perfil e é utilizado pela função segura de recuperação.
-- A regra de dados exige usuário autenticado e ativo para consultar ou alterar `operacoes`.
+O GitHub Pages publica somente o site. Ele não publica Firebase Functions nem regras do Realtime Database.
