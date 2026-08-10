@@ -640,7 +640,7 @@
     window.qapAuthReady = new Promise(resolve => { resolveAuth = resolve; });
 
     if (!configIsReady()) {
-      document.getElementById("authLoading").textContent = "Firebase ainda não configurado. Preencha public/firebase-config.js.";
+      document.getElementById("authLoading").textContent = "Firebase ainda não configurado. Confira firebase-config-spark.js.";
     } else {
       const app = initializeApp(firebaseConfig);
       const auth = getAuth(app);
@@ -660,13 +660,11 @@
             await signOut(auth);
             return location.replace("index.html?erro=inativo");
           }
-          document.getElementById("usuarioLogado").textContent = `Conectado: RE ${perfil.re || ""}`;
+          document.getElementById("usuarioLogado").textContent = `Conectado: ${perfil.nome || user.displayName || ""} • ${perfil.email || user.email || ""}`;
           window.qapPerfilAtual = perfil;
-          if (perfil.perfil === "admin" || perfil.re === "140965") {
+          if (perfil.perfil === "admin" || perfil.email === "rpfenille@gmail.com") {
             document.getElementById("btnAdmin").style.display = "inline-flex";
           }
-          const campoRE = document.getElementById("re");
-          if (campoRE && !campoRE.value) campoRE.value = perfil.re || "";
           document.getElementById("authLoading").remove();
           resolveAuth(user);
         } catch (error) {
@@ -1057,7 +1055,8 @@
         acao,
         lancamentoId,
         usuarioUid: (await window.qapAuthReady).uid,
-        usuarioRE: perfil.re || "",
+        usuarioEmail: perfil.email || "",
+        usuarioNome: perfil.nome || "",
         dataHora: new Date().toISOString(),
         camposAlterados: [...new Set([...alteradosBase.filter(x => x !== "campos"), ...alteradosCampos])],
         dadosAnteriores: antes || null,

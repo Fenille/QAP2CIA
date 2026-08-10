@@ -3,35 +3,43 @@
     ".read": false,
     ".write": false,
     "usuarios": {
-      ".read": "auth != null && (root.child('usuarios').child(auth.uid).child('perfil').val() === 'admin' || root.child('usuarios').child(auth.uid).child('re').val() === '140965')",
+      ".read": "auth != null && (auth.token.email === 'rpfenille@gmail.com' || root.child('usuarios').child(auth.uid).child('perfil').val() === 'admin')",
       "$uid": {
-        ".read": "auth != null && ($uid === auth.uid || root.child('usuarios').child(auth.uid).child('perfil').val() === 'admin' || root.child('usuarios').child(auth.uid).child('re').val() === '140965')",
-        ".write": "auth != null && ((root.child('usuarios').child(auth.uid).child('perfil').val() === 'admin' || root.child('usuarios').child(auth.uid).child('re').val() === '140965') || ($uid === auth.uid && !data.exists() && newData.child('ativo').val() === true && (newData.child('perfil').val() === 'usuario' || (newData.child('re').val() === '140965' && newData.child('perfil').val() === 'admin'))) || ($uid === auth.uid && data.exists() && newData.child('re').val() === data.child('re').val() && newData.child('emailRecuperacao').val() === data.child('emailRecuperacao').val() && newData.child('ativo').val() === data.child('ativo').val() && (newData.child('perfil').val() === data.child('perfil').val() || (data.child('re').val() === '140965' && newData.child('perfil').val() === 'admin'))))",
-        "re": { ".validate": "newData.isString() && newData.val().matches(/^[0-9]{5,8}$/)" },
-        "emailRecuperacao": { ".validate": "newData.isString() && newData.val().matches(/^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$/)" },
+        ".read": "auth != null && ($uid === auth.uid || auth.token.email === 'rpfenille@gmail.com' || root.child('usuarios').child(auth.uid).child('perfil').val() === 'admin')",
+        ".write": "auth != null && ((auth.token.email === 'rpfenille@gmail.com' || root.child('usuarios').child(auth.uid).child('perfil').val() === 'admin') || ($uid === auth.uid && !data.exists() && newData.child('email').val() === auth.token.email && newData.child('ativo').val() === true && ((auth.token.email === 'rpfenille@gmail.com' && newData.child('perfil').val() === 'admin') || (auth.token.email !== 'rpfenille@gmail.com' && newData.child('perfil').val() === 'usuario'))) || ($uid === auth.uid && data.exists() && newData.child('email').val() === auth.token.email && newData.child('email').val() === data.child('email').val() && newData.child('ativo').val() === data.child('ativo').val() && (newData.child('perfil').val() === data.child('perfil').val() || auth.token.email === 'rpfenille@gmail.com'))) ",
+        "email": { ".validate": "newData.isString() && newData.val() === auth.token.email" },
+        "nome": { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 150" },
         "perfil": { ".validate": "newData.val() === 'usuario' || newData.val() === 'admin'" },
         "ativo": { ".validate": "newData.isBoolean()" },
+        "provedor": { ".validate": "newData.val() === 'google'" },
         "criadoEm": { ".validate": "newData.isNumber()" },
-        "ultimoAcesso": { ".validate": "newData.val() === null || newData.isNumber()" },
-        "$outros": { ".validate": false }
+        "ultimoAcesso": { ".validate": "newData.isNumber()" },
+        "$other": { ".validate": false }
       }
     },
     "operacoes": {
       ".read": "auth != null && root.child('usuarios').child(auth.uid).child('ativo').val() === true",
-      ".write": "auth != null && root.child('usuarios').child(auth.uid).child('ativo').val() === true",
       "$id": {
-        "criadoPorUid": { ".validate": "data.exists() || newData.val() === auth.uid" }
+        ".write": "auth != null && root.child('usuarios').child(auth.uid).child('ativo').val() === true",
+        "createdPorUid": { ".validate": "data.exists() || newData.val() === auth.uid" },
+        "$other": { ".validate": true }
       }
     },
     "auditoria": {
-      ".read": "auth != null && (root.child('usuarios').child(auth.uid).child('perfil').val() === 'admin' || root.child('usuarios').child(auth.uid).child('re').val() === '140965')",
+      ".read": "auth != null && (auth.token.email === 'rpfenille@gmail.com' || root.child('usuarios').child(auth.uid).child('perfil').val() === 'admin')",
       "$evento": {
-        ".write": "auth != null && !data.exists() && newData.child('usuarioUid').val() === auth.uid && newData.child('usuarioRE').val() === root.child('usuarios').child(auth.uid).child('re').val() && root.child('usuarios').child(auth.uid).child('ativo').val() === true",
-        "acao": { ".validate": "newData.val() === 'criacao' || newData.val() === 'edicao' || newData.val() === 'exclusao'" },
+        ".write": "auth != null && !data.exists() && root.child('usuarios').child(auth.uid).child('ativo').val() === true && newData.child('usuarioUid').val() === auth.uid && newData.child('usuarioEmail').val() === auth.token.email",
         "usuarioUid": { ".validate": "newData.val() === auth.uid" },
-        "usuarioRE": { ".validate": "newData.val() === root.child('usuarios').child(auth.uid).child('re').val()" },
-        "dataHora": { ".validate": "newData.isString()" },
-        "lancamentoId": { ".validate": "newData.isString()" }
+        "usuarioEmail": { ".validate": "newData.val() === auth.token.email" },
+        "usuarioNome": { ".validate": "newData.isString()" },
+        "acao": { ".validate": "newData.val() === 'criacao' || newData.val() === 'edicao' || newData.val() === 'exclusao'" },
+        "lancamentoId": { ".validate": "newData.isString() && newData.val().length > 0" },
+        "dataHora": { ".validate": "newData.isString() && newData.val().length > 0" },
+        "camposAlterados": { ".validate": "newData.exists()" },
+        "dadosAnteriores": { ".validate": true },
+        "dadosNovos": { ".validate": true },
+        "origem": { ".validate": "newData.isString()" },
+        "$other": { ".validate": false }
       }
     },
     "reIndex": { ".read": false, ".write": false },

@@ -18,10 +18,10 @@
   <main class="shell">
     <div class="top"><div><h1>Administração do QAP</h1><div class="muted" id="adminInfo"></div></div><div class="actions"><a class="btn" href="qap.html">Voltar ao QAP</a><button id="sair">Sair</button></div></div>
     <div id="notice" class="notice"></div>
-    <section class="card"><div class="top"><h2>Usuários</h2><button class="primary" id="recarregarUsuarios">Atualizar</button></div><div class="table-wrap"><table><thead><tr><th>RE</th><th>E-mail</th><th>Perfil</th><th>Situação</th><th>Último acesso</th><th>Ações</th></tr></thead><tbody id="usuariosBody"></tbody></table></div></section>
+    <section class="card"><div class="top"><div><h2>Usuários</h2><div class="muted">Desative uma conta para impedir novos acessos.</div></div><button class="primary" id="recarregarUsuarios">Atualizar</button></div><div class="table-wrap"><table><thead><tr><th>Nome</th><th>Gmail</th><th>Perfil</th><th>Situação</th><th>Último acesso</th><th>Ações</th></tr></thead><tbody id="usuariosBody"></tbody></table></div></section>
     <section class="card"><div class="top"><h2>Rastro de auditoria</h2><div class="actions"><button id="exportar">Exportar CSV</button><button class="primary" id="recarregarAuditoria">Atualizar</button></div></div>
-      <div class="grid"><label>RE do usuário<input id="filtroRE" inputmode="numeric" placeholder="Todos"></label><label>Ação<select id="filtroAcao"><option value="">Todas</option><option value="criacao">Criação</option><option value="edicao">Edição</option><option value="exclusao">Exclusão</option></select></label><label>Data inicial<input id="filtroInicio" type="date"></label><label>Data final<input id="filtroFim" type="date"></label></div>
-      <div class="table-wrap"><table><thead><tr><th>Data/hora</th><th>RE</th><th>Ação</th><th>Lançamento</th><th>Campos alterados</th><th>Antes</th><th>Depois</th></tr></thead><tbody id="auditoriaBody"></tbody></table></div>
+      <div class="grid"><label>Gmail do usuário<input id="filtroEmail" type="search" placeholder="Todos"></label><label>Ação<select id="filtroAcao"><option value="">Todas</option><option value="criacao">Criação</option><option value="edicao">Edição</option><option value="exclusao">Exclusão</option></select></label><label>Data inicial<input id="filtroInicio" type="date"></label><label>Data final<input id="filtroFim" type="date"></label></div>
+      <div class="table-wrap"><table><thead><tr><th>Data/hora</th><th>Nome</th><th>Gmail</th><th>Ação</th><th>Lançamento</th><th>Campos alterados</th><th>Antes</th><th>Depois</th></tr></thead><tbody id="auditoriaBody"></tbody></table></div>
     </section>
   </main>
   <script type="module" src="admin-spark.js"></script>

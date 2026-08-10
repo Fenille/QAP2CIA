@@ -1,67 +1,27 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>QAP — Acesso</title>
-  <link rel="stylesheet" href="styles.css" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>QAP — Acesso com Google</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .google-btn{display:flex;align-items:center;justify-content:center;gap:12px;background:#fff;color:#222;border:1px solid #ddd}
+    .google-icon{font:800 21px Arial;color:#4285f4}.account-note{text-align:center;color:#aaa;font-size:.85rem;line-height:1.45}
+  </style>
 </head>
 <body>
   <main class="shell">
     <section class="card">
-      <div class="brand">
-        <div class="badge">QAP</div>
-        <h1>Sistema QAP</h1>
-        <p>Acesso restrito</p>
-      </div>
-
+      <div class="brand"><div class="badge">QAP</div><h1>Sistema QAP</h1><p>Acesso restrito</p></div>
       <div id="message" class="message" hidden></div>
-
-      <form id="loginForm" class="panel active">
-        <h2>Entrar</h2>
-        <label>RE
-          <input id="loginRE" inputmode="numeric" autocomplete="username" maxlength="8" required />
-        </label>
-        <label>Senha
-          <input id="loginPassword" type="password" autocomplete="current-password" minlength="8" required />
-        </label>
-        <button type="submit">Acessar</button>
-        <div class="links">
-          <button type="button" class="link" data-show="firstAccessForm">Primeiro acesso</button>
-          <button type="button" class="link" data-show="resetForm">Esqueci minha senha</button>
-        </div>
-      </form>
-
-      <form id="firstAccessForm" class="panel">
-        <h2>Primeiro acesso</h2>
-        <label>RE
-          <input id="firstRE" inputmode="numeric" maxlength="8" required />
-        </label>
-        <label>E-mail para recuperação
-          <input id="firstEmail" type="email" autocomplete="email" required />
-        </label>
-        <label>Senha
-          <input id="firstPassword" type="password" minlength="8" autocomplete="new-password" required />
-        </label>
-        <label>Confirmar senha
-          <input id="firstPasswordConfirm" type="password" minlength="8" autocomplete="new-password" required />
-        </label>
-        <small>Mínimo de 8 caracteres.</small>
-        <button type="submit">Cadastrar acesso</button>
-        <button type="button" class="secondary" data-show="loginForm">Voltar</button>
-      </form>
-
-      <form id="resetForm" class="panel">
-        <h2>Redefinir senha</h2>
-        <label>RE
-          <input id="resetRE" inputmode="numeric" maxlength="8" required />
-        </label>
-        <p class="hint">O link será enviado ao e-mail cadastrado no primeiro acesso.</p>
-        <button type="submit">Enviar link</button>
-        <button type="button" class="secondary" data-show="loginForm">Voltar</button>
-      </form>
+      <div class="panel active">
+        <h2>Identificação</h2>
+        <p class="account-note">Use sua conta Google. O nome e o e-mail autenticados serão registrados nas ações realizadas no sistema.</p>
+        <button type="button" class="google-btn" id="entrarGoogle"><span class="google-icon">G</span>Entrar com Google</button>
+      </div>
     </section>
   </main>
-  <script type="module" src="app-spark.js"></script>
+  <script type="module" src="login-google.js"></script>
 </body>
 </html>
