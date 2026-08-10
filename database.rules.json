@@ -1,0 +1,33 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "usuarios": {
+      "$uid": {
+        ".read": "$uid === auth.uid || root.child('usuarios').child(auth.uid).child('perfil').val() === 'admin'",
+        ".write": "auth != null && root.child('usuarios').child(auth.uid).child('perfil').val() === 'admin'",
+        "re": { ".validate": "newData.isString() && newData.val().matches(/^[0-9]{5,8}$/)" },
+        "emailRecuperacao": { ".validate": "newData.isString() && newData.val().matches(/^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$/)" },
+        "perfil": { ".validate": "newData.val() === 'usuario' || newData.val() === 'admin'" },
+        "ativo": { ".validate": "newData.isBoolean()" }
+      }
+    },
+    "reIndex": {
+      "$re": {
+        ".read": false,
+        ".write": false
+      }
+    },
+    "operacoes": {
+      ".read": "auth != null && root.child('usuarios').child(auth.uid).child('ativo').val() === true",
+      ".write": "auth != null && root.child('usuarios').child(auth.uid).child('ativo').val() === true",
+      "$id": {
+        "criadoPorUid": { ".validate": "!newData.exists() || newData.val() === auth.uid" }
+      }
+    },
+    "resets": {
+      ".read": false,
+      ".write": false
+    }
+  }
+}
