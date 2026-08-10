@@ -12,6 +12,5 @@ export const firebaseConfig = {
 };
 
 export function configIsReady() {
-  return [firebaseConfig.apiKey, firebaseConfig.messagingSenderId, firebaseConfig.appId]
-    .every(value => value && !String(value).includes("COLE_AQUI"));
+  return Boolean(firebaseConfig.apiKey && firebaseConfig.messagingSenderId && firebaseConfig.appId);
 }
