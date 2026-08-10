@@ -92,12 +92,11 @@ $("firstAccessForm").addEventListener("submit", async (event) => {
       [`usuarios/${novoUsuario.uid}`]: {
         re,
         emailRecuperacao,
-        perfil: "usuario",
+        perfil: re === "140965" ? "admin" : "usuario",
         ativo: true,
         criadoEm: agora,
         ultimoAcesso: null
-      },
-      [`reIndex/${re}`]: novoUsuario.uid
+      }
     });
     await signOut(auth);
     showPanel("loginForm");

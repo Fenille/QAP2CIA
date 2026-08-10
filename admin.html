@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>QAP — Administração</title>
+  <style>
+    :root{color-scheme:dark;font-family:Arial,Helvetica,sans-serif;--y:#ffff00;--bg:#050505;--card:#111;--muted:#aaa}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top,#252100,#050505 45%);color:#fff;min-height:100vh;padding:20px}
+    .shell{max-width:1400px;margin:auto}.top{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:18px}
+    h1,h2{color:var(--y);margin:0}.actions{display:flex;gap:8px;flex-wrap:wrap}.btn,button{border:1px solid #666;border-radius:9px;background:#222;color:#fff;padding:10px 14px;font-weight:700;cursor:pointer;text-decoration:none}.primary{background:var(--y);color:#050505;border-color:var(--y)}
+    .card{background:rgba(10,10,10,.96);border:1px solid #777;border-radius:16px;padding:18px;margin-bottom:18px;box-shadow:0 0 20px #000}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin:14px 0}
+    label{display:grid;gap:5px;color:#ccc;font-size:.84rem}input,select{border:1px solid #555;background:#181818;color:#fff;border-radius:8px;padding:10px}.table-wrap{overflow:auto;max-height:520px}table{width:100%;border-collapse:collapse;font-size:.84rem}th,td{border-bottom:1px solid #333;padding:9px;text-align:left;vertical-align:top}th{position:sticky;top:0;background:#181818;color:var(--y);z-index:1}.muted{color:var(--muted)}.tag{border-radius:999px;padding:4px 8px;font-size:.74rem;font-weight:700;display:inline-block}.on{background:#174e2d;color:#8dffb5}.off{background:#5b1d1d;color:#ffb0b0}.admin{background:#4b4300;color:#ffff7a}.detail{white-space:pre-wrap;max-width:440px;max-height:140px;overflow:auto;font-family:Consolas,monospace;font-size:.75rem}.loading{position:fixed;inset:0;display:grid;place-items:center;background:#050505;z-index:20;color:var(--y);font-weight:800}.notice{padding:10px;border-left:4px solid var(--y);background:#222;margin:10px 0;display:none}
+  </style>
+</head>
+<body>
+  <div class="loading" id="loading">Validando administrador…</div>
+  <main class="shell">
+    <div class="top"><div><h1>Administração do QAP</h1><div class="muted" id="adminInfo"></div></div><div class="actions"><a class="btn" href="qap.html">Voltar ao QAP</a><button id="sair">Sair</button></div></div>
+    <div id="notice" class="notice"></div>
+    <section class="card"><div class="top"><h2>Usuários</h2><button class="primary" id="recarregarUsuarios">Atualizar</button></div><div class="table-wrap"><table><thead><tr><th>RE</th><th>E-mail</th><th>Perfil</th><th>Situação</th><th>Último acesso</th><th>Ações</th></tr></thead><tbody id="usuariosBody"></tbody></table></div></section>
+    <section class="card"><div class="top"><h2>Rastro de auditoria</h2><div class="actions"><button id="exportar">Exportar CSV</button><button class="primary" id="recarregarAuditoria">Atualizar</button></div></div>
+      <div class="grid"><label>RE do usuário<input id="filtroRE" inputmode="numeric" placeholder="Todos"></label><label>Ação<select id="filtroAcao"><option value="">Todas</option><option value="criacao">Criação</option><option value="edicao">Edição</option><option value="exclusao">Exclusão</option></select></label><label>Data inicial<input id="filtroInicio" type="date"></label><label>Data final<input id="filtroFim" type="date"></label></div>
+      <div class="table-wrap"><table><thead><tr><th>Data/hora</th><th>RE</th><th>Ação</th><th>Lançamento</th><th>Campos alterados</th><th>Antes</th><th>Depois</th></tr></thead><tbody id="auditoriaBody"></tbody></table></div>
+    </section>
+  </main>
+  <script type="module" src="admin-spark.js"></script>
+</body>
+</html>

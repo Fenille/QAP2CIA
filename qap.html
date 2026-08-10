@@ -91,6 +91,7 @@
     .user-area{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;}
     .user-re{font-size:.78rem;color:var(--cinza);}
     .logout-btn{border:1px solid rgba(255,255,255,.28);border-radius:999px;background:#151515;color:var(--amarelo-neon);padding:7px 12px;cursor:pointer;font-weight:700;}
+    .admin-btn{display:none;text-decoration:none;border:1px solid #ffff00;border-radius:999px;background:#ffff00;color:#050505;padding:7px 12px;font-weight:800;}
     .auth-loading{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;background:#050505;color:#ffff00;font:700 1rem Arial;text-align:center;padding:24px;}
 
     .tabs-top{
@@ -471,6 +472,7 @@
             <div class="user-re" id="usuarioLogado"></div>
           </div>
           <button type="button" class="logout-btn" id="btnSair">Sair</button>
+          <a class="admin-btn" id="btnAdmin" href="admin.html">Administração</a>
         </div>
       </header>
 
@@ -659,6 +661,10 @@
             return location.replace("index.html?erro=inativo");
           }
           document.getElementById("usuarioLogado").textContent = `Conectado: RE ${perfil.re || ""}`;
+          window.qapPerfilAtual = perfil;
+          if (perfil.perfil === "admin" || perfil.re === "140965") {
+            document.getElementById("btnAdmin").style.display = "inline-flex";
+          }
           const campoRE = document.getElementById("re");
           if (campoRE && !campoRE.value) campoRE.value = perfil.re || "";
           document.getElementById("authLoading").remove();
@@ -1036,6 +1042,36 @@
       return lista;
     }
 
+    function camposAlterados(antes, depois){
+      const chaves = new Set([...Object.keys(antes || {}), ...Object.keys(depois || {})]);
+      return [...chaves].filter(chave => JSON.stringify(antes?.[chave]) !== JSON.stringify(depois?.[chave]));
+    }
+
+    async function registrarAuditoria(acao, lancamentoId, antes, depois){
+      await window.qapAuthReady;
+      const token = await window.qapGetIdToken();
+      const perfil = window.qapPerfilAtual || {};
+      const alteradosBase = camposAlterados(antes || {}, depois || {});
+      const alteradosCampos = camposAlterados(antes?.campos || {}, depois?.campos || {}).map(x => `campos.${x}`);
+      const evento = {
+        acao,
+        lancamentoId,
+        usuarioUid: (await window.qapAuthReady).uid,
+        usuarioRE: perfil.re || "",
+        dataHora: new Date().toISOString(),
+        camposAlterados: [...new Set([...alteradosBase.filter(x => x !== "campos"), ...alteradosCampos])],
+        dadosAnteriores: antes || null,
+        dadosNovos: depois || null,
+        origem: "qap-web"
+      };
+      const resp = await fetch(DB_URL + "/auditoria.json?auth=" + encodeURIComponent(token), {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify(evento)
+      });
+      if(!resp.ok) throw new Error("Falha ao registrar auditoria: " + resp.status);
+    }
+
     const formLancamento = document.getElementById("formLancamento");
     const alertForm   = document.getElementById("alertForm");
     const btnLimpar   = document.getElementById("btnLimpar");
@@ -1168,10 +1204,12 @@
       try{
         if(editingKey){
           await firebaseAtualizarLancamento(editingKey, lanc);
+          await registrarAuditoria("edicao", editingKey, editingLancamento, lanc).catch(console.error);
           mostrarAlertaForm("Lançamento atualizado com sucesso!", true);
           sairModoEdicao();
         }else{
-          await firebaseSalvarLancamento(lanc);
+          const salvo = await firebaseSalvarLancamento(lanc);
+          await registrarAuditoria("criacao", salvo.name, null, lanc).catch(console.error);
           mostrarAlertaForm("Lançamento salvo com sucesso!", true);
         }
         limparFormulario();

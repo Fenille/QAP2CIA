@@ -1,22 +1,32 @@
-# QAP2CIA — versão corrigida para GitHub Pages
+# QAP2CIA — versão final no plano gratuito Spark
 
-Os arquivos públicos estão diretamente na raiz, como exigido pelo GitHub Pages:
+## Recursos
 
-- `index.html`: tela de login;
-- `qap.html`: sistema protegido;
-- `app.js`, `styles.css` e `firebase-config.js`: arquivos do login.
+- Login pelo RE e senha.
+- Primeiro acesso sem Cloud Functions.
+- RE `140965` como administrador inicial.
+- Painel `admin.html` para usuários e auditoria.
+- Ativação, desativação e promoção de administradores.
+- Registro de criação e edição de lançamentos.
+- Registro das alterações administrativas.
+- Comparação de dados anteriores e novos.
+- Exportação da auditoria em CSV.
 
-## Como publicar no GitHub
+## Publicação no GitHub Pages
 
-1. Exclua do repositório os arquivos da versão anterior, principalmente o antigo `index.html`.
-2. Extraia este ZIP.
-3. Envie **o conteúdo extraído**, e não a pasta nem o ZIP.
-4. Aguarde o GitHub Pages concluir a publicação.
+Extraia o ZIP e envie todos os arquivos da pasta `QAP2CIA-main` para a raiz do repositório. Aguarde a publicação e atualize com `Ctrl + F5`.
 
-## Configuração do Firebase
+## Publicação obrigatória das regras do banco
 
-O arquivo `firebase-config.js` já está preenchido com o aplicativo Web do projeto `qap2cia-bd58b`.
+O GitHub não publica `database.rules.json`. No Firebase:
 
-No Firebase, ainda é necessário habilitar **Authentication > E-mail/senha**. O primeiro acesso e a recuperação por e-mail também dependem da publicação das Functions incluídas na pasta `functions`.
+1. Abra **Realtime Database**.
+2. Entre na aba **Regras**.
+3. Substitua o conteúdo pelas regras do arquivo `database.rules.json` deste pacote.
+4. Clique em **Publicar**.
 
-O GitHub Pages publica somente o site. Ele não publica Firebase Functions nem regras do Realtime Database.
+Faça isso somente depois de confirmar que o administrador RE `140965` já aparece em `usuarios` no Realtime Database.
+
+## Limitação do plano gratuito
+
+A recuperação automática de senha por e-mail não está disponível. O administrador deve redefinir o acesso pelo Firebase Authentication ou recriar o cadastro. Nenhuma senha fica gravada no código ou no Realtime Database.
